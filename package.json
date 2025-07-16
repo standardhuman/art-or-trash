@@ -1,7 +1,7 @@
 {
-  "name": "art-or-trash",
+  "name": "art-or-not",
   "version": "1.0.0",
-  "description": "Hot or Not clone comparing museum art with trash images",
+  "description": "A game that challenges you to distinguish real art from everyday objects",
   "main": "server-hybrid.js",
   "scripts": {
     "start": "node server-hybrid.js",

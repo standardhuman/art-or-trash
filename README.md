@@ -1,6 +1,6 @@
-# Art or Trash?
+# Art or Not?
 
-A "hot or not" style web game that challenges users to distinguish between genuine museum art and images of trash.
+A challenging web game that tests your ability to distinguish genuine museum artwork from everyday objects and scenes.
 
 ## Setup
 
@@ -23,13 +23,17 @@ npm start
 
 ## Features
 
-- Random pairing of museum art vs trash images
-- Vote tracking and statistics
+- Single image display with Art/Not Art voting
+- Keyboard shortcuts for quick gameplay
+- Auto-advance after voting
+- Image history with back navigation
+- User submissions to expand the collection
 - Sources art from major museums including:
   - Metropolitan Museum of Art
-  - Rijksmuseum (via OAI-PMH API - no key required)
+  - Rijksmuseum
   - Art Institute of Chicago
-- Scrapes trash images from web searches
+  - Contemporary and modern art pieces
+- Includes carefully selected everyday objects that look artistic
 
 ## Notes
 

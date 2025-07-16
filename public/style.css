@@ -359,3 +359,61 @@ h1 {
     margin-top: 15px;
     text-align: center;
 }
+
+.submit-prominent {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.submit-button {
+    display: inline-block;
+    background-color: #2ecc71;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.submit-button:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.help-section {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.help-section summary {
+    cursor: pointer;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    list-style: none;
+}
+
+.help-section summary::-webkit-details-marker {
+    display: none;
+}
+
+.help-content {
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.help-content h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.help-content h4:first-child {
+    margin-top: 10px;
+}

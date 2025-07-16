@@ -48,7 +48,7 @@ function loadPreviousImage() {
         if (currentImage.type === 'art') {
             message = `This is ART: "${currentImage.title}" by ${currentImage.artist} (${currentImage.museum})`;
         } else {
-            message = `This is TRASH: ${currentImage.title}`;
+            message = `This is NOT ART: ${currentImage.title}`;
         }
         resultDiv.innerHTML = `ℹ️ ${message}`;
     }
@@ -116,7 +116,7 @@ function showResult(isCorrect, vote) {
     if (currentImage.type === 'art') {
         message = `This is ART! "${currentImage.title}" by ${currentImage.artist} (${currentImage.museum})`;
     } else {
-        message = `This is TRASH! Just a ${currentImage.title}`;
+        message = `This is NOT ART! Just ${currentImage.title}`;
     }
     
     if (isCorrect) {

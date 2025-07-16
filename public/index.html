@@ -3,27 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Art or Trash?</title>
+    <title>Art or Not?</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Art or Trash?</h1>
-        <p class="subtitle">Can you tell museum art from literal garbage?</p>
+        <h1>Art or Not?</h1>
+        <p class="subtitle">Can you tell real art from everyday objects?</p>
         
-        <details class="instructions">
-            <summary>How to Play</summary>
-            <div class="instructions-content">
-                <p>You'll see one image at a time - it could be priceless artwork from world-famous museums or actual photos of trash.</p>
-                <ol>
-                    <li><strong>Look carefully</strong> at the image</li>
-                    <li><strong>Make your choice:</strong> Is it Art 🎨 or Trash 🗑️?</li>
-                    <li><strong>Get instant feedback</strong> - were you right?</li>
-                    <li><strong>Auto-advance</strong> to the next image after 3 seconds</li>
-                </ol>
-                <p class="challenge-text">Think you have a refined artistic eye? This game might surprise you!</p>
-            </div>
-        </details>
+        <div class="submit-prominent">
+            <a href="/submit.html" class="submit-button">Submit an Image</a>
+        </div>
         
         <div id="game-area">
             <div class="image-container">
@@ -36,8 +26,8 @@
                     <span class="text">Art</span>
                 </button>
                 <button class="vote-btn trash-btn" data-vote="trash">
-                    <span class="icon">🗑️</span>
-                    <span class="text">Trash</span>
+                    <span class="icon">❌</span>
+                    <span class="text">Not Art</span>
                 </button>
             </div>
             
@@ -57,18 +47,22 @@
             <div id="stats-content"></div>
         </div>
         
-        <div class="keyboard-shortcuts">
-            <h4>Keyboard Shortcuts</h4>
-            <div class="shortcuts-grid">
-                <span class="key">1</span><span>Vote Art</span>
-                <span class="key">2</span><span>Vote Trash</span>
-                <span class="key">Space/Enter</span><span>Next Image</span>
-                <span class="key">← / Backspace</span><span>Previous Image</span>
-            </div>
-        </div>
-        
         <div class="footer-links">
-            <a href="/submit.html">Submit an Image</a>
+            <details class="help-section">
+                <summary>Help & Info</summary>
+                <div class="help-content">
+                    <h4>How to Play</h4>
+                    <p>Look at each image and decide: Is it art from a museum, or just an everyday object?</p>
+                    
+                    <h4>Keyboard Shortcuts</h4>
+                    <div class="shortcuts-grid">
+                        <span class="key">1</span><span>Vote Art</span>
+                        <span class="key">2</span><span>Vote Not Art</span>
+                        <span class="key">Space/Enter</span><span>Next Image</span>
+                        <span class="key">← / Backspace</span><span>Previous Image</span>
+                    </div>
+                </div>
+            </details>
         </div>
     </div>
     
