@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art or Trash?</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Art or Trash?</h1>
+        <p class="subtitle">Can you tell museum art from literal garbage?</p>
+        
+        <div id="game-area">
+            <div class="image-container">
+                <img id="current-image" src="" alt="Mystery Image">
+            </div>
+            
+            <div class="button-container">
+                <button class="vote-btn art-btn" data-vote="art">
+                    <span class="icon">🎨</span>
+                    <span class="text">Art</span>
+                </button>
+                <button class="vote-btn trash-btn" data-vote="trash">
+                    <span class="icon">🗑️</span>
+                    <span class="text">Trash</span>
+                </button>
+            </div>
+            
+            <div id="result" class="result hidden"></div>
+            <button id="next-btn" class="next-btn hidden">Next Image</button>
+        </div>
+        
+        <div id="stats" class="stats">
+            <h3>Global Stats</h3>
+            <div id="stats-content"></div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
