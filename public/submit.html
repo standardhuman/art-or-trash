@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Image - Art or Trash?</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .submit-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .submit-btn {
+            background-color: #2ecc71;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-link a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        
+        #preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Submit an Image</h1>
+        <p class="subtitle">Help expand our collection!</p>
+        
+        <form class="submit-form" id="submitForm">
+            <div class="form-group">
+                <label for="imageUrl">Image URL*</label>
+                <input type="url" id="imageUrl" name="imageUrl" required placeholder="https://example.com/image.jpg">
+                <img id="preview" alt="Image preview">
+            </div>
+            
+            <div class="form-group">
+                <label for="imageType">Type*</label>
+                <select id="imageType" name="imageType" required>
+                    <option value="">Select type...</option>
+                    <option value="art">Art</option>
+                    <option value="trash">Trash</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" placeholder="e.g. Mona Lisa or Garbage pile">
+            </div>
+            
+            <div class="form-group" id="artistGroup" style="display: none;">
+                <label for="artist">Artist</label>
+                <input type="text" id="artist" name="artist" placeholder="e.g. Leonardo da Vinci">
+            </div>
+            
+            <div class="form-group" id="museumGroup" style="display: none;">
+                <label for="museum">Museum/Source</label>
+                <input type="text" id="museum" name="museum" placeholder="e.g. Louvre Museum">
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Notes (optional)</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="Any additional information..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">Submit Image</button>
+        </form>
+        
+        <div class="back-link">
+            <a href="/">← Back to Game</a>
+        </div>
+        
+        <div id="result" class="result hidden" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('submitForm');
+        const typeSelect = document.getElementById('imageType');
+        const artistGroup = document.getElementById('artistGroup');
+        const museumGroup = document.getElementById('museumGroup');
+        const imageUrlInput = document.getElementById('imageUrl');
+        const preview = document.getElementById('preview');
+        const resultDiv = document.getElementById('result');
+        
+        // Show/hide fields based on type
+        typeSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'art') {
+                artistGroup.style.display = 'block';
+                museumGroup.style.display = 'block';
+            } else {
+                artistGroup.style.display = 'none';
+                museumGroup.style.display = 'none';
+            }
+        });
+        
+        // Preview image
+        imageUrlInput.addEventListener('change', (e) => {
+            const url = e.target.value;
+            if (url) {
+                preview.src = url;
+                preview.style.display = 'block';
+                preview.onerror = () => {
+                    preview.style.display = 'none';
+                };
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+        
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                url: imageUrlInput.value,
+                type: typeSelect.value,
+                title: document.getElementById('title').value || 
+                       (typeSelect.value === 'art' ? 'Untitled Artwork' : 'Trash Image'),
+                artist: document.getElementById('artist').value || 'Unknown',
+                museum: document.getElementById('museum').value || 'User Submission',
+                source: 'User Submission'
+            };
+            
+            try {
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                resultDiv.classList.remove('hidden', 'correct', 'incorrect');
+                
+                if (response.ok) {
+                    resultDiv.classList.add('correct');
+                    resultDiv.textContent = '✅ Image submitted successfully! Thank you for contributing.';
+                    form.reset();
+                    preview.style.display = 'none';
+                    artistGroup.style.display = 'none';
+                    museumGroup.style.display = 'none';
+                } else {
+                    resultDiv.classList.add('incorrect');
+                    resultDiv.textContent = `❌ Error: ${result.error || 'Failed to submit image'}`;
+                }
+            } catch (error) {
+                resultDiv.classList.remove('hidden');
+                resultDiv.classList.add('incorrect');
+                resultDiv.textContent = '❌ Network error. Please try again.';
+            }
+        });
+    </script>
+</body>
+</html>

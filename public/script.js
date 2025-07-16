@@ -1,16 +1,63 @@
 let currentImage = null;
 let hasVoted = false;
+let autoAdvanceTimer = null;
+let imageHistory = [];
+let historyIndex = -1;
+const AUTO_ADVANCE_DELAY = 3000; // 3 seconds
+const MAX_HISTORY = 50; // Keep last 50 images
 
 async function loadNewImage() {
     try {
         const response = await fetch('/api/random-image');
         currentImage = await response.json();
         
+        // Add to history
+        historyIndex++;
+        imageHistory = imageHistory.slice(0, historyIndex);
+        imageHistory.push(currentImage);
+        
+        // Limit history size
+        if (imageHistory.length > MAX_HISTORY) {
+            imageHistory.shift();
+            historyIndex--;
+        }
+        
         displayImage();
         resetUI();
         loadStats();
+        updateBackButton();
     } catch (error) {
         console.error('Error loading image:', error);
+    }
+}
+
+function loadPreviousImage() {
+    if (historyIndex > 0) {
+        historyIndex--;
+        currentImage = imageHistory[historyIndex];
+        displayImage();
+        resetUI();
+        updateBackButton();
+        
+        // Show info about previous image
+        const resultDiv = document.getElementById('result');
+        resultDiv.classList.remove('hidden', 'correct', 'incorrect');
+        resultDiv.classList.add('info');
+        
+        let message = '';
+        if (currentImage.type === 'art') {
+            message = `This is ART: "${currentImage.title}" by ${currentImage.artist} (${currentImage.museum})`;
+        } else {
+            message = `This is TRASH: ${currentImage.title}`;
+        }
+        resultDiv.innerHTML = `ℹ️ ${message}`;
+    }
+}
+
+function updateBackButton() {
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) {
+        backBtn.disabled = historyIndex <= 0;
     }
 }
 
@@ -23,6 +70,7 @@ function displayImage() {
 
 function resetUI() {
     hasVoted = false;
+    clearTimeout(autoAdvanceTimer);
     document.getElementById('result').classList.add('hidden');
     document.getElementById('next-btn').classList.add('hidden');
     document.querySelectorAll('.vote-btn').forEach(btn => {
@@ -53,6 +101,11 @@ async function handleVote(vote) {
     });
     
     document.getElementById('next-btn').classList.remove('hidden');
+    
+    // Auto-advance after delay
+    autoAdvanceTimer = setTimeout(() => {
+        loadNewImage();
+    }, AUTO_ADVANCE_DELAY);
 }
 
 function showResult(isCorrect, vote) {
@@ -127,5 +180,37 @@ document.querySelectorAll('.vote-btn').forEach(btn => {
 });
 
 document.getElementById('next-btn').addEventListener('click', loadNewImage);
+document.getElementById('back-btn').addEventListener('click', loadPreviousImage);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Prevent shortcuts when typing in input fields
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    
+    switch(e.key) {
+        case '1':
+            if (!hasVoted && !document.querySelector('.art-btn').disabled) {
+                handleVote('art');
+            }
+            break;
+        case '2':
+            if (!hasVoted && !document.querySelector('.trash-btn').disabled) {
+                handleVote('trash');
+            }
+            break;
+        case ' ':
+        case 'Enter':
+            e.preventDefault();
+            if (hasVoted && !document.getElementById('next-btn').classList.contains('hidden')) {
+                loadNewImage();
+            }
+            break;
+        case 'ArrowLeft':
+        case 'Backspace':
+            e.preventDefault();
+            loadPreviousImage();
+            break;
+    }
+});
 
 loadNewImage();
