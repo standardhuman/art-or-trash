@@ -3,7 +3,7 @@ let hasVoted = false;
 let autoAdvanceTimer = null;
 let imageHistory = [];
 let historyIndex = -1;
-const AUTO_ADVANCE_DELAY = 3000; // 3 seconds
+const AUTO_ADVANCE_DELAY = 1000; // 1 second
 const MAX_HISTORY = 50; // Keep last 50 images
 
 async function loadNewImage() {
