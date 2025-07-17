@@ -44,13 +44,25 @@ function loadPreviousImage() {
         resultDiv.classList.remove('hidden', 'correct', 'incorrect');
         resultDiv.classList.add('info');
         
-        let message = '';
-        if (currentImage.type === 'art') {
-            message = `This is ART: "${currentImage.title}" by ${currentImage.artist} (${currentImage.museum})`;
-        } else {
-            message = `This is NOT ART: ${currentImage.title}`;
-        }
-        resultDiv.innerHTML = `ℹ️ ${message}`;
+        const imageDetails = {
+            title: currentImage.title,
+            artist: currentImage.artist,
+            museum: currentImage.museum
+        };
+        
+        let message = `
+            <div class="previous-image-info">
+                <p><em>Previously viewed image</em></p>
+                <button id="reveal-details-btn" class="reveal-btn">Reveal Classification</button>
+            </div>
+        `;
+        
+        resultDiv.innerHTML = message;
+        
+        // Add click handler for reveal button
+        document.getElementById('reveal-details-btn').addEventListener('click', () => {
+            showActualDetails(currentImage.type, imageDetails);
+        });
     }
 }
 
@@ -102,10 +114,7 @@ async function handleVote(vote) {
     if (hasVoted) return;
     hasVoted = true;
     
-    const isCorrect = (vote === 'art' && currentImage.type === 'art') || 
-                     (vote === 'trash' && currentImage.type === 'trash');
-    
-    await fetch('/api/vote', {
+    const response = await fetch('/api/vote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -114,7 +123,9 @@ async function handleVote(vote) {
         })
     });
     
-    showResult(isCorrect, vote);
+    const data = await response.json();
+    
+    showResult(data.voteStats, vote, data.actualType, data.imageDetails);
     
     document.querySelectorAll('.vote-btn').forEach(btn => {
         btn.disabled = true;
@@ -128,24 +139,53 @@ async function handleVote(vote) {
     }, AUTO_ADVANCE_DELAY);
 }
 
-function showResult(isCorrect, vote) {
+function showResult(voteStats, userVote, actualType, imageDetails) {
     const resultDiv = document.getElementById('result');
     resultDiv.classList.remove('hidden', 'correct', 'incorrect');
     
-    let message = '';
-    if (currentImage.type === 'art') {
-        message = `This is ART! "${currentImage.title}" by ${currentImage.artist} (${currentImage.museum})`;
+    const artPercent = voteStats.total > 0 ? Math.round((voteStats.art / voteStats.total) * 100) : 0;
+    const trashPercent = voteStats.total > 0 ? Math.round((voteStats.trash / voteStats.total) * 100) : 0;
+    
+    let message = `
+        <div class="vote-results">
+            <p><strong>Public Opinion:</strong></p>
+            <p>🎨 ${artPercent}% voted Art (${voteStats.art} votes)</p>
+            <p>🗑️ ${trashPercent}% voted Not Art (${voteStats.trash} votes)</p>
+            <p><em>Total votes: ${voteStats.total}</em></p>
+            <button id="reveal-details-btn" class="reveal-btn">Reveal Actual Classification</button>
+        </div>
+    `;
+    
+    resultDiv.innerHTML = message;
+    
+    // Add click handler for reveal button
+    document.getElementById('reveal-details-btn').addEventListener('click', () => {
+        showActualDetails(actualType, imageDetails);
+    });
+}
+
+function showActualDetails(actualType, imageDetails) {
+    const resultDiv = document.getElementById('result');
+    
+    let detailMessage = '';
+    if (actualType === 'art') {
+        detailMessage = `<div class="actual-details">
+            <p><strong>Actual Classification:</strong> Art</p>
+            <p><strong>Title:</strong> "${imageDetails.title}"</p>
+            <p><strong>Artist:</strong> ${imageDetails.artist}</p>
+            <p><strong>Collection:</strong> ${imageDetails.museum}</p>
+        </div>`;
     } else {
-        message = `This is NOT ART! Just ${currentImage.title}`;
+        detailMessage = `<div class="actual-details">
+            <p><strong>Actual Classification:</strong> Not Art</p>
+            <p><strong>Description:</strong> ${imageDetails.title}</p>
+        </div>`;
     }
     
-    if (isCorrect) {
-        resultDiv.classList.add('correct');
-        resultDiv.innerHTML = `✅ Correct! ${message}`;
-    } else {
-        resultDiv.classList.add('incorrect');
-        resultDiv.innerHTML = `❌ Wrong! ${message}`;
-    }
+    resultDiv.innerHTML = resultDiv.innerHTML.replace(
+        '<button id="reveal-details-btn" class="reveal-btn">Reveal Actual Classification</button>',
+        detailMessage
+    );
 }
 
 async function loadStats() {

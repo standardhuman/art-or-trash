@@ -178,7 +178,7 @@
 <body>
     <div class="container">
         <h1>Submit an Image</h1>
-        <p class="subtitle">Help us collect more confusing garbage!</p>
+        <p class="subtitle">Contribute to the dataset.</p>
         
         <form class="submit-form" id="submitForm">
             <div class="option-selector">
@@ -216,13 +216,13 @@
                 <select id="imageType" name="imageType" required>
                     <option value="">Select type...</option>
                     <option value="art">Art (from a museum/gallery)</option>
-                    <option value="trash">Not Art (absolute garbage)</option>
+                    <option value="trash">Not Art (discarded material)</option>
                 </select>
             </div>
             
             <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" id="title" name="title" placeholder="e.g. Mona Lisa or mysterious sidewalk stain">
+                <input type="text" id="title" name="title" placeholder="Item description">
             </div>
             
             <div class="form-group" id="artistGroup" style="display: none;">
@@ -237,7 +237,7 @@
             
             <div class="form-group">
                 <label for="notes">Notes (optional)</label>
-                <textarea id="notes" name="notes" rows="3" placeholder="Where did you find this masterpiece/garbage?"></textarea>
+                <textarea id="notes" name="notes" rows="3" placeholder="Additional context (optional)"></textarea>
             </div>
             
             <button type="submit" class="submit-btn" id="submitBtn">Submit Image</button>
@@ -335,7 +335,7 @@
             if (file) {
                 // Check file size (2MB limit for database storage)
                 if (file.size > 2 * 1024 * 1024) {
-                    alert('Whoa! That\'s one hefty piece of garbage! Please keep your trash under 2MB.');
+                    alert('File exceeds 2MB limit.');
                     e.target.value = '';
                     return;
                 }
@@ -422,7 +422,7 @@
                     url: imageUrl,
                     type: typeSelect.value,
                     title: document.getElementById('title').value || 
-                           (typeSelect.value === 'art' ? 'Untitled Artwork' : 'mysterious garbage'),
+                           (typeSelect.value === 'art' ? 'Untitled' : 'Untitled'),
                     artist: document.getElementById('artist').value || 'Unknown',
                     museum: document.getElementById('museum').value || 'User Submission',
                     source: 'User Submission'
@@ -440,7 +440,7 @@
                 
                 if (response.ok) {
                     resultDiv.classList.add('correct');
-                    resultDiv.textContent = '✅ Image submitted successfully! Thanks for contributing to our garbage collection!';
+                    resultDiv.textContent = '✅ Image submitted successfully.';
                     form.reset();
                     preview.style.display = 'none';
                     artistGroup.style.display = 'none';
@@ -453,13 +453,13 @@
                     
                     // Make errors more user-friendly and cheeky
                     if (errorMessage.includes('8191') || errorMessage.includes('row size') || errorMessage.includes('bytes')) {
-                        errorMessage = "Whoa there! That image is way too chunky for our dumpster. Try uploading a smaller piece of garbage (under 2MB works best).";
+                        errorMessage = "Image size exceeds database limit. Please use a smaller file.";
                     } else if (errorMessage.includes('duplicate') || errorMessage.includes('already exists')) {
-                        errorMessage = "Someone already threw that exact piece of trash in our collection! Got any other garbage lying around?";
+                        errorMessage = "This image already exists in the database.";
                     } else if (errorMessage.includes('timeout')) {
-                        errorMessage = "Our garbage truck broke down! Try dumping your trash again in a moment.";
+                        errorMessage = "Server timeout. Please try again.";
                     } else if (errorMessage.includes('Invalid image')) {
-                        errorMessage = "That doesn't look like proper garbage to us. Make sure it's an actual image file!";
+                        errorMessage = "Invalid file format. Please select an image file.";
                     }
                     
                     resultDiv.textContent = `❌ ${errorMessage}`;

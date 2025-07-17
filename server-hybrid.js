@@ -101,6 +101,22 @@ if (isProduction && process.env.SUPABASE_URL) {
         throw error;
       }
       return data;
+    },
+    
+    getImageVoteStats: async (imageId) => {
+      const { data, error } = await supabase
+        .from('votes')
+        .select('vote')
+        .eq('image_id', imageId);
+      if (error) throw error;
+      
+      const stats = { art: 0, trash: 0, total: 0 };
+      data.forEach(vote => {
+        stats[vote.vote]++;
+        stats.total++;
+      });
+      
+      return stats;
     }
   };
 } else {
@@ -215,6 +231,22 @@ if (isProduction && process.env.SUPABASE_URL) {
           );
         });
       });
+    },
+    
+    getImageVoteStats: (imageId) => {
+      return new Promise((resolve, reject) => {
+        sqliteDb.all('SELECT vote FROM votes WHERE image_id = ?', [imageId], (err, rows) => {
+          if (err) return reject(err);
+          
+          const stats = { art: 0, trash: 0, total: 0 };
+          rows.forEach(row => {
+            stats[row.vote]++;
+            stats.total++;
+          });
+          
+          resolve(stats);
+        });
+      });
     }
   };
 }
@@ -250,7 +282,19 @@ app.post('/api/vote', async (req, res) => {
     await db.insertVote(imageId, vote);
     await db.updateImageStats(imageId, isCorrect);
     
-    res.json({ success: true, isCorrect });
+    // Get voting statistics for this image
+    const voteStats = await db.getImageVoteStats(imageId);
+    
+    res.json({ 
+      success: true, 
+      voteStats: voteStats,
+      actualType: image.type,
+      imageDetails: {
+        title: image.title,
+        artist: image.artist,
+        museum: image.museum
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -305,7 +349,7 @@ app.post('/api/submit', async (req, res) => {
       url,
       source: source || 'User Submission',
       type,
-      title: title || (type === 'art' ? 'Untitled Artwork' : 'mysterious garbage'),
+      title: title || (type === 'art' ? 'Untitled' : 'unidentified material'),
       artist: artist || 'Unknown',
       museum: museum || 'User Submission'
     });
