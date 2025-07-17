@@ -6,7 +6,8 @@ const app = express();
 const PORT = process.env.PORT || 4444;
 const isProduction = process.env.NODE_ENV === 'production';
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.static('public'));
 
 // Database adapter based on environment
@@ -21,11 +22,21 @@ if (isProduction && process.env.SUPABASE_URL) {
   
   db = {
     getRandomImage: async (type) => {
+      // Get total count first
+      const countQuery = supabase.from('images').select('id', { count: 'exact', head: true });
+      if (type) countQuery.eq('type', type);
+      const { count } = await countQuery;
+      
+      // Get random offset
+      const randomOffset = Math.floor(Math.random() * count);
+      
+      // Get random image
       const query = supabase.from('images').select('*');
       if (type) query.eq('type', type);
-      const { data, error } = await query.order('RANDOM()').limit(1).single();
+      const { data, error } = await query.limit(1).range(randomOffset, randomOffset);
+      
       if (error) throw error;
-      return data;
+      return data[0];
     },
     
     getImage: async (id) => {
@@ -54,11 +65,27 @@ if (isProduction && process.env.SUPABASE_URL) {
     },
     
     getStats: async () => {
+      // Supabase doesn't support direct aggregation in select, so we need to aggregate in JavaScript
       const { data, error } = await supabase
         .from('images')
         .select('type, total_votes, correct_votes');
       if (error) throw error;
-      return data;
+      
+      // Aggregate the results
+      const aggregated = data.reduce((acc, row) => {
+        if (!acc[row.type]) {
+          acc[row.type] = {
+            type: row.type,
+            total_votes: 0,
+            correct_votes: 0
+          };
+        }
+        acc[row.type].total_votes += row.total_votes || 0;
+        acc[row.type].correct_votes += row.correct_votes || 0;
+        return acc;
+      }, {});
+      
+      return Object.values(aggregated);
     },
     
     insertImage: async (imageData) => {
@@ -258,17 +285,34 @@ app.post('/api/submit', async (req, res) => {
       return res.status(400).json({ error: 'Type must be either "art" or "trash"' });
     }
     
+    // Check if it's a data URL and validate
+    if (url.startsWith('data:')) {
+      // Extract mime type
+      const mimeMatch = url.match(/^data:([^;]+);/);
+      if (!mimeMatch || !mimeMatch[1].startsWith('image/')) {
+        return res.status(400).json({ error: 'Invalid image data' });
+      }
+      
+      // Check size (rough estimate - base64 is ~33% larger than binary)
+      const base64Length = url.length - url.indexOf(',') - 1;
+      const estimatedSize = base64Length * 0.75;
+      if (estimatedSize > 5 * 1024 * 1024) { // 5MB limit
+        return res.status(400).json({ error: 'Image size exceeds 5MB limit' });
+      }
+    }
+    
     const result = await db.insertImage({
       url,
       source: source || 'User Submission',
       type,
-      title,
-      artist,
-      museum
+      title: title || (type === 'art' ? 'Untitled Artwork' : 'mysterious garbage'),
+      artist: artist || 'Unknown',
+      museum: museum || 'User Submission'
     });
     
     res.json({ success: true, id: result.id });
   } catch (error) {
+    console.error('Submit error:', error);
     res.status(400).json({ error: error.message });
   }
 });

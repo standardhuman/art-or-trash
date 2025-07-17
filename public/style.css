@@ -360,9 +360,9 @@ h1 {
     text-align: center;
 }
 
-.submit-prominent {
+.submit-container {
     text-align: center;
-    margin: 30px 0;
+    margin: 20px 0;
 }
 
 .submit-button {
@@ -416,4 +416,25 @@ h1 {
 
 .help-content h4:first-child {
     margin-top: 10px;
+}
+
+.app-description {
+    max-width: 800px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.app-description h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.app-description p {
+    margin-bottom: 15px;
+    line-height: 1.8;
+    color: #555;
 }

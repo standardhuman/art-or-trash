@@ -63,9 +63,29 @@ function updateBackButton() {
 
 function displayImage() {
     const img = document.getElementById('current-image');
-    img.src = currentImage.url;
     
-    img.onerror = () => img.src = 'https://via.placeholder.com/600x600?text=Image+Not+Found';
+    // Clear any existing error handlers
+    img.onerror = null;
+    
+    // Set up new error handler with retry logic
+    let retryCount = 0;
+    img.onerror = function() {
+        console.error('Failed to load image:', currentImage.url);
+        
+        // Only retry once, then skip to next image
+        if (retryCount === 0) {
+            retryCount++;
+            // Try a data URL as fallback
+            img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="600"%3E%3Crect width="600" height="600" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-family="Arial" font-size="24" fill="%23999"%3EImage Not Found%3C/text%3E%3C/svg%3E';
+        } else {
+            // Skip to next image automatically
+            console.log('Skipping broken image, loading next...');
+            setTimeout(loadNewImage, 500);
+        }
+    };
+    
+    // Set the image source
+    img.src = currentImage.url;
 }
 
 function resetUI() {

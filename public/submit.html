@@ -58,6 +58,11 @@
             background-color: #27ae60;
         }
         
+        .submit-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
         .back-link {
             text-align: center;
             margin-top: 20px;
@@ -77,33 +82,147 @@
             max-height: 300px;
             margin-top: 10px;
             display: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .upload-option {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #ecf0f1;
+        }
+        
+        .upload-option.active {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+        
+        .option-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .option-btn {
+            flex: 1;
+            padding: 10px;
+            background: white;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .option-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .file-input-label:hover {
+            background: #2980b9;
+        }
+        
+        .file-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Submit an Image</h1>
-        <p class="subtitle">Help expand our collection!</p>
+        <p class="subtitle">Help us collect more confusing garbage!</p>
         
         <form class="submit-form" id="submitForm">
-            <div class="form-group">
-                <label for="imageUrl">Image URL*</label>
-                <input type="url" id="imageUrl" name="imageUrl" required placeholder="https://example.com/image.jpg">
-                <img id="preview" alt="Image preview">
+            <div class="option-selector">
+                <button type="button" class="option-btn active" data-option="url">Use Image URL</button>
+                <button type="button" class="option-btn" data-option="upload">Upload Image</button>
             </div>
+            
+            <div id="urlOption" class="upload-option active">
+                <div class="form-group">
+                    <label for="imageUrl">Image URL*</label>
+                    <input type="url" id="imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg">
+                </div>
+            </div>
+            
+            <div id="uploadOption" class="upload-option" style="display: none;">
+                <div class="form-group">
+                    <label>Upload Image File*</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="imageFile" name="imageFile" accept="image/*">
+                        <label for="imageFile" class="file-input-label">
+                            Choose Image File
+                        </label>
+                    </div>
+                    <div class="file-info">
+                        <span id="fileName">No file selected</span><br>
+                        <small>Max size: 2MB. Supported: JPG, PNG, GIF, WebP</small>
+                    </div>
+                </div>
+            </div>
+            
+            <img id="preview" alt="Image preview">
             
             <div class="form-group">
                 <label for="imageType">Type*</label>
                 <select id="imageType" name="imageType" required>
                     <option value="">Select type...</option>
                     <option value="art">Art (from a museum/gallery)</option>
-                    <option value="trash">Not Art (everyday object)</option>
+                    <option value="trash">Not Art (absolute garbage)</option>
                 </select>
             </div>
             
             <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" id="title" name="title" placeholder="e.g. Mona Lisa or Garbage pile">
+                <input type="text" id="title" name="title" placeholder="e.g. Mona Lisa or mysterious sidewalk stain">
             </div>
             
             <div class="form-group" id="artistGroup" style="display: none;">
@@ -118,10 +237,10 @@
             
             <div class="form-group">
                 <label for="notes">Notes (optional)</label>
-                <textarea id="notes" name="notes" rows="3" placeholder="Any additional information..."></textarea>
+                <textarea id="notes" name="notes" rows="3" placeholder="Where did you find this masterpiece/garbage?"></textarea>
             </div>
             
-            <button type="submit" class="submit-btn">Submit Image</button>
+            <button type="submit" class="submit-btn" id="submitBtn">Submit Image</button>
         </form>
         
         <div class="back-link">
@@ -137,8 +256,52 @@
         const artistGroup = document.getElementById('artistGroup');
         const museumGroup = document.getElementById('museumGroup');
         const imageUrlInput = document.getElementById('imageUrl');
+        const imageFileInput = document.getElementById('imageFile');
         const preview = document.getElementById('preview');
         const resultDiv = document.getElementById('result');
+        const submitBtn = document.getElementById('submitBtn');
+        const fileName = document.getElementById('fileName');
+        const optionBtns = document.querySelectorAll('.option-btn');
+        const urlOption = document.getElementById('urlOption');
+        const uploadOption = document.getElementById('uploadOption');
+        
+        let currentOption = 'url';
+        let uploadedImageUrl = null;
+        
+        // Option selector
+        optionBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                optionBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentOption = e.target.dataset.option;
+                
+                if (currentOption === 'url') {
+                    urlOption.style.display = 'block';
+                    urlOption.classList.add('active');
+                    uploadOption.style.display = 'none';
+                    uploadOption.classList.remove('active');
+                    imageFileInput.value = '';
+                    fileName.textContent = 'No file selected';
+                    uploadedImageUrl = null;
+                    if (imageUrlInput.value) {
+                        preview.src = imageUrlInput.value;
+                        preview.style.display = 'block';
+                    }
+                } else {
+                    urlOption.style.display = 'none';
+                    urlOption.classList.remove('active');
+                    uploadOption.style.display = 'block';
+                    uploadOption.classList.add('active');
+                    imageUrlInput.value = '';
+                    if (uploadedImageUrl) {
+                        preview.src = uploadedImageUrl;
+                        preview.style.display = 'block';
+                    } else {
+                        preview.style.display = 'none';
+                    }
+                }
+            });
+        });
         
         // Show/hide fields based on type
         typeSelect.addEventListener('change', (e) => {
@@ -151,7 +314,7 @@
             }
         });
         
-        // Preview image
+        // Preview image from URL
         imageUrlInput.addEventListener('change', (e) => {
             const url = e.target.value;
             if (url) {
@@ -159,9 +322,73 @@
                 preview.style.display = 'block';
                 preview.onerror = () => {
                     preview.style.display = 'none';
+                    alert('Could not load image from URL. Please check the URL and try again.');
                 };
             } else {
                 preview.style.display = 'none';
+            }
+        });
+        
+        // Handle file selection
+        imageFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file size (2MB limit for database storage)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Whoa! That\'s one hefty piece of garbage! Please keep your trash under 2MB.');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file');
+                    e.target.value = '';
+                    return;
+                }
+                
+                fileName.textContent = file.name;
+                
+                // Preview and compress the file
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Create canvas for compression
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Calculate new dimensions (max 800px on longest side)
+                        let width = img.width;
+                        let height = img.height;
+                        const maxSize = 800;
+                        
+                        if (width > height && width > maxSize) {
+                            height = (height * maxSize) / width;
+                            width = maxSize;
+                        } else if (height > maxSize) {
+                            width = (width * maxSize) / height;
+                            height = maxSize;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        // Draw and compress
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert to compressed data URL (0.7 quality)
+                        uploadedImageUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        preview.src = uploadedImageUrl;
+                        preview.style.display = 'block';
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                fileName.textContent = 'No file selected';
+                preview.style.display = 'none';
+                uploadedImageUrl = null;
             }
         });
         
@@ -169,17 +396,38 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const formData = {
-                url: imageUrlInput.value,
-                type: typeSelect.value,
-                title: document.getElementById('title').value || 
-                       (typeSelect.value === 'art' ? 'Untitled Artwork' : 'Trash Image'),
-                artist: document.getElementById('artist').value || 'Unknown',
-                museum: document.getElementById('museum').value || 'User Submission',
-                source: 'User Submission'
-            };
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Submitting<span class="loading"></span>';
             
             try {
+                let imageUrl;
+                
+                if (currentOption === 'url') {
+                    imageUrl = imageUrlInput.value;
+                    if (!imageUrl) {
+                        throw new Error('Please provide an image URL');
+                    }
+                } else {
+                    const file = imageFileInput.files[0];
+                    if (!file) {
+                        throw new Error('Please select an image file');
+                    }
+                    
+                    // For now, we'll use the data URL
+                    // In production, you'd upload to a service like Cloudinary or S3
+                    imageUrl = uploadedImageUrl;
+                }
+                
+                const formData = {
+                    url: imageUrl,
+                    type: typeSelect.value,
+                    title: document.getElementById('title').value || 
+                           (typeSelect.value === 'art' ? 'Untitled Artwork' : 'mysterious garbage'),
+                    artist: document.getElementById('artist').value || 'Unknown',
+                    museum: document.getElementById('museum').value || 'User Submission',
+                    source: 'User Submission'
+                };
+                
                 const response = await fetch('/api/submit', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -192,19 +440,37 @@
                 
                 if (response.ok) {
                     resultDiv.classList.add('correct');
-                    resultDiv.textContent = '✅ Image submitted successfully! Thank you for contributing.';
+                    resultDiv.textContent = '✅ Image submitted successfully! Thanks for contributing to our garbage collection!';
                     form.reset();
                     preview.style.display = 'none';
                     artistGroup.style.display = 'none';
                     museumGroup.style.display = 'none';
+                    fileName.textContent = 'No file selected';
+                    uploadedImageUrl = null;
                 } else {
                     resultDiv.classList.add('incorrect');
-                    resultDiv.textContent = `❌ Error: ${result.error || 'Failed to submit image'}`;
+                    let errorMessage = result.error || 'Failed to submit image';
+                    
+                    // Make errors more user-friendly and cheeky
+                    if (errorMessage.includes('8191') || errorMessage.includes('row size') || errorMessage.includes('bytes')) {
+                        errorMessage = "Whoa there! That image is way too chunky for our dumpster. Try uploading a smaller piece of garbage (under 2MB works best).";
+                    } else if (errorMessage.includes('duplicate') || errorMessage.includes('already exists')) {
+                        errorMessage = "Someone already threw that exact piece of trash in our collection! Got any other garbage lying around?";
+                    } else if (errorMessage.includes('timeout')) {
+                        errorMessage = "Our garbage truck broke down! Try dumping your trash again in a moment.";
+                    } else if (errorMessage.includes('Invalid image')) {
+                        errorMessage = "That doesn't look like proper garbage to us. Make sure it's an actual image file!";
+                    }
+                    
+                    resultDiv.textContent = `❌ ${errorMessage}`;
                 }
             } catch (error) {
                 resultDiv.classList.remove('hidden');
                 resultDiv.classList.add('incorrect');
-                resultDiv.textContent = '❌ Network error. Please try again.';
+                resultDiv.textContent = `❌ ${error.message || 'Network error. Please try again.'}`;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit Image';
             }
         });
     </script>
