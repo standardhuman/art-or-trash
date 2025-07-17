@@ -31,7 +31,7 @@ async function loadNewImage() {
     }
 }
 
-function loadPreviousImage() {
+async function loadPreviousImage() {
     if (historyIndex > 0) {
         historyIndex--;
         currentImage = imageHistory[historyIndex];
@@ -39,31 +39,76 @@ function loadPreviousImage() {
         resetUI();
         updateBackButton();
         
-        // Show info about previous image
-        const resultDiv = document.getElementById('result');
-        resultDiv.classList.remove('hidden', 'correct', 'incorrect');
-        resultDiv.classList.add('info');
-        
-        const imageDetails = {
-            title: currentImage.title,
-            artist: currentImage.artist,
-            museum: currentImage.museum
-        };
-        
-        let message = `
-            <div class="previous-image-info">
-                <p><em>Previously viewed image</em></p>
-                <button id="reveal-details-btn" class="reveal-btn">Reveal Classification</button>
-            </div>
-        `;
-        
-        resultDiv.innerHTML = message;
-        
-        // Add click handler for reveal button
-        document.getElementById('reveal-details-btn').addEventListener('click', () => {
-            showActualDetails(currentImage.type, imageDetails);
-        });
+        // Get vote stats for this image
+        try {
+            const response = await fetch(`/api/image-stats/${currentImage.id}`);
+            if (response.ok) {
+                const data = await response.json();
+                showPreviousImageResult(data.voteStats, currentImage.type, {
+                    title: currentImage.title,
+                    artist: currentImage.artist,
+                    museum: currentImage.museum
+                });
+            } else {
+                // Fallback if no stats available
+                showPreviousImageFallback();
+            }
+        } catch (error) {
+            console.error('Error fetching image stats:', error);
+            showPreviousImageFallback();
+        }
     }
+}
+
+function showPreviousImageResult(voteStats, actualType, imageDetails) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.classList.remove('hidden', 'correct', 'incorrect');
+    
+    const artPercent = voteStats.total > 0 ? Math.round((voteStats.art / voteStats.total) * 100) : 0;
+    const trashPercent = voteStats.total > 0 ? Math.round((voteStats.trash / voteStats.total) * 100) : 0;
+    
+    let message = `
+        <div class="vote-results">
+            <p><em>Previously viewed image</em></p>
+            <p><strong>Public Opinion:</strong></p>
+            <p>🎨 ${artPercent}% voted Art (${voteStats.art} votes)</p>
+            <p>🗑️ ${trashPercent}% voted Not Art (${voteStats.trash} votes)</p>
+            <p><em>Total votes: ${voteStats.total}</em></p>
+            <button id="reveal-details-btn" class="reveal-btn">Reveal Actual Classification</button>
+        </div>
+    `;
+    
+    resultDiv.innerHTML = message;
+    
+    // Add click handler for reveal button
+    document.getElementById('reveal-details-btn').addEventListener('click', () => {
+        showActualDetails(actualType, imageDetails);
+    });
+}
+
+function showPreviousImageFallback() {
+    const resultDiv = document.getElementById('result');
+    resultDiv.classList.remove('hidden', 'correct', 'incorrect');
+    
+    const imageDetails = {
+        title: currentImage.title,
+        artist: currentImage.artist,
+        museum: currentImage.museum
+    };
+    
+    let message = `
+        <div class="previous-image-info">
+            <p><em>Previously viewed image</em></p>
+            <button id="reveal-details-btn" class="reveal-btn">Reveal Classification</button>
+        </div>
+    `;
+    
+    resultDiv.innerHTML = message;
+    
+    // Add click handler for reveal button
+    document.getElementById('reveal-details-btn').addEventListener('click', () => {
+        showActualDetails(currentImage.type, imageDetails);
+    });
 }
 
 function updateBackButton() {

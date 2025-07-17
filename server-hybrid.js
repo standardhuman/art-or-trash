@@ -300,6 +300,20 @@ app.post('/api/vote', async (req, res) => {
   }
 });
 
+app.get('/api/image-stats/:imageId', async (req, res) => {
+  try {
+    const imageId = req.params.imageId;
+    const voteStats = await db.getImageVoteStats(imageId);
+    
+    res.json({ 
+      success: true, 
+      voteStats: voteStats 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/stats', async (req, res) => {
   try {
     const stats = await db.getStats();
