@@ -72,11 +72,8 @@ function showPreviousImageResult(voteStats, actualType, imageDetails) {
     
     let message = `
         <div class="vote-results">
-            <p><em>Previously viewed image</em></p>
-            <p><strong>Public Opinion:</strong></p>
-            <p>🎨 ${artPercent}% voted Art (${voteStats.art} votes)</p>
-            <p>🗑️ ${trashPercent}% voted Not Art (${voteStats.trash} votes)</p>
-            <p><em>Total votes: ${voteStats.total}</em></p>
+            <p>🎨 ${artPercent}%</p>
+            <p>🗑️ ${trashPercent}%</p>
             <button id="reveal-details-btn" class="reveal-btn">Reveal Actual Classification</button>
         </div>
     `;
@@ -199,10 +196,8 @@ function showResult(voteStats, userVote, actualType, imageDetails) {
     
     let message = `
         <div class="vote-results">
-            <p><strong>Public Opinion:</strong></p>
-            <p>🎨 ${artPercent}% voted Art (${voteStats.art} votes)</p>
-            <p>🗑️ ${trashPercent}% voted Not Art (${voteStats.trash} votes)</p>
-            <p><em>Total votes: ${voteStats.total}</em></p>
+            <p>🎨 ${artPercent}%</p>
+            <p>🗑️ ${trashPercent}%</p>
             <button id="reveal-details-btn" class="reveal-btn">Reveal Actual Classification</button>
         </div>
     `;
