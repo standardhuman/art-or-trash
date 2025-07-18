@@ -3,7 +3,7 @@ let hasVoted = false;
 let autoAdvanceTimer = null;
 let imageHistory = [];
 let historyIndex = -1;
-const AUTO_ADVANCE_DELAY = 1000; // 1 second
+const AUTO_ADVANCE_DELAY = 3000; // 3 seconds
 const MAX_HISTORY = 50; // Keep last 50 images
 
 async function loadNewImage() {
@@ -61,6 +61,9 @@ async function loadPreviousImage() {
 }
 
 function showPreviousImageResult(voteStats, actualType, imageDetails) {
+    // Hide vote teasers for previous images
+    document.getElementById('vote-teasers').style.display = 'none';
+    
     const resultDiv = document.getElementById('result');
     resultDiv.classList.remove('hidden', 'correct', 'incorrect');
     
@@ -87,6 +90,9 @@ function showPreviousImageResult(voteStats, actualType, imageDetails) {
 }
 
 function showPreviousImageFallback() {
+    // Hide vote teasers for previous images
+    document.getElementById('vote-teasers').style.display = 'none';
+    
     const resultDiv = document.getElementById('result');
     resultDiv.classList.remove('hidden', 'correct', 'incorrect');
     
@@ -146,6 +152,7 @@ function resetUI() {
     clearTimeout(autoAdvanceTimer);
     document.getElementById('result').classList.add('hidden');
     document.getElementById('next-btn').classList.add('hidden');
+    document.getElementById('vote-teasers').style.display = 'flex';
     document.querySelectorAll('.vote-btn').forEach(btn => {
         btn.disabled = false;
     });
@@ -181,6 +188,9 @@ async function handleVote(vote) {
 }
 
 function showResult(voteStats, userVote, actualType, imageDetails) {
+    // Hide vote teasers
+    document.getElementById('vote-teasers').style.display = 'none';
+    
     const resultDiv = document.getElementById('result');
     resultDiv.classList.remove('hidden', 'correct', 'incorrect');
     
