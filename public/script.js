@@ -201,6 +201,9 @@ function showResult(voteStats, userVote, actualType, imageDetails) {
 }
 
 function showActualDetails(actualType, imageDetails) {
+    // Clear the auto-advance timer when revealing details
+    clearTimeout(autoAdvanceTimer);
+    
     const resultDiv = document.getElementById('result');
     
     let detailMessage = '';
