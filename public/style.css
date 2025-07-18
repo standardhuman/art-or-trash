@@ -37,13 +37,15 @@ h1 {
 .image-container {
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 500px;
     margin-bottom: 30px;
 }
 
 #current-image {
     max-width: 600px;
-    max-height: 600px;
-    width: 100%;
+    max-height: 500px;
+    width: auto;
     height: auto;
     object-fit: contain;
     background: white;
@@ -275,9 +277,13 @@ h1 {
 }
 
 @media (max-width: 768px) {
+    .image-container {
+        height: 400px;
+    }
+    
     #current-image {
         max-width: 90vw;
-        max-height: 50vh;
+        max-height: 400px;
     }
     
     .button-container {
@@ -301,6 +307,14 @@ h1 {
 }
 
 @media (max-width: 400px) {
+    .image-container {
+        height: 350px;
+    }
+    
+    #current-image {
+        max-height: 350px;
+    }
+    
     .button-container {
         gap: 8px;
         width: 98%;
