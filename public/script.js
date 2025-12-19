@@ -347,22 +347,26 @@ document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
     switch(e.key) {
-        case '1':
+        case 'ArrowRight':
+            e.preventDefault();
             if (!hasVoted && !document.querySelector('.art-btn').disabled) {
                 handleVote('art', 'normal');
             }
             break;
-        case '2':
+        case 'ArrowLeft':
+            e.preventDefault();
             if (!hasVoted && !document.querySelector('.trash-btn').disabled) {
                 handleVote('trash', 'normal');
             }
             break;
-        case '!': // Shift+1 for confident art
+        case 'ArrowUp':
+            e.preventDefault();
             if (!hasVoted && !document.querySelector('.art-btn').disabled) {
                 handleVote('art', 'confident');
             }
             break;
-        case '@': // Shift+2 for confident trash
+        case 'ArrowDown':
+            e.preventDefault();
             if (!hasVoted && !document.querySelector('.trash-btn').disabled) {
                 handleVote('trash', 'confident');
             }
@@ -374,7 +378,6 @@ document.addEventListener('keydown', (e) => {
                 loadNewImage();
             }
             break;
-        case 'ArrowLeft':
         case 'Backspace':
             e.preventDefault();
             loadPreviousImage();
