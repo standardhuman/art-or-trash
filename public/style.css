@@ -141,63 +141,60 @@ h1 {
     border: 3px solid white;
 }
 
+/* Vote Buttons - Understated outline style */
 .button-container {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin-bottom: 30px;
-    flex-wrap: nowrap;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
 }
 
 .vote-btn {
-    padding: 20px 40px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.3rem;
-    font-weight: bold;
+    padding: var(--space-md) var(--space-xl);
+    border: 2px solid var(--border-light);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    gap: var(--space-sm);
+    background: var(--bg-white);
+    color: var(--text-secondary);
 }
 
-.vote-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+.vote-btn:hover:not(:disabled) {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
 }
 
 .vote-btn:disabled {
-    opacity: 0.6;
+    opacity: 0.4;
     cursor: not-allowed;
-    transform: none;
 }
 
-.art-btn {
-    background-color: #3498db;
-    color: white;
+.vote-btn.art-btn:hover:not(:disabled) {
+    border-color: var(--accent-art);
+    color: var(--accent-art);
 }
 
-.art-btn:hover:not(:disabled) {
-    background-color: #2980b9;
-}
-
-.trash-btn {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.trash-btn:hover:not(:disabled) {
-    background-color: #c0392b;
+.vote-btn.trash-btn:hover:not(:disabled) {
+    border-color: var(--accent-trash);
+    color: var(--text-primary);
 }
 
 .vote-btn .icon {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
 }
 
-.vote-btn .text {
-    font-size: 1.2rem;
+/* Vote instruction text */
+.vote-instruction {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin-bottom: var(--space-md);
 }
 
 .result {
