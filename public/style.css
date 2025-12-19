@@ -645,6 +645,64 @@ h1 {
     font-style: italic;
 }
 
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-white);
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-around;
+    padding: var(--space-sm) 0;
+    z-index: 100;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-muted);
+    padding: var(--space-sm) var(--space-md);
+    transition: color 0.2s ease;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    color: var(--text-primary);
+}
+
+.nav-icon {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+}
+
+.nav-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Desktop: top nav instead */
+@media (min-width: 768px) {
+    .bottom-nav {
+        position: static;
+        border-top: none;
+        border-bottom: 1px solid var(--border-light);
+        margin-bottom: var(--space-xl);
+    }
+}
+
+/* Mobile: add bottom padding for fixed nav */
+@media (max-width: 767px) {
+    body {
+        padding-bottom: 80px;
+    }
+}
+
 /* Verdict Display */
 .verdict-container {
     text-align: center;
