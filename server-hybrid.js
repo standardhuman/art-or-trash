@@ -22,21 +22,13 @@ if (isProduction && process.env.SUPABASE_URL) {
   
   db = {
     getRandomImage: async (type) => {
-      // Get total count first
-      const countQuery = supabase.from('images').select('id', { count: 'exact', head: true });
-      if (type) countQuery.eq('type', type);
-      const { count } = await countQuery;
-      
-      // Get random offset
-      const randomOffset = Math.floor(Math.random() * count);
-      
-      // Get random image
-      const query = supabase.from('images').select('*');
-      if (type) query.eq('type', type);
-      const { data, error } = await query.limit(1).range(randomOffset, randomOffset);
-      
+      // Use PostgreSQL RPC function for efficient server-side random selection
+      const { data, error } = await supabase.rpc('get_random_image', {
+        image_type: type || null
+      });
+
       if (error) throw error;
-      return data[0];
+      return data && data.length > 0 ? data[0] : null;
     },
     
     getImage: async (id) => {

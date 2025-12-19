@@ -7,6 +7,11 @@ let historyIndex = -1;
 const AUTO_ADVANCE_DELAY = 3000;
 const MAX_HISTORY = 50;
 
+// Preloading system for instant image transitions
+let preloadedImage = null;
+let preloadedImageData = null;
+let isPreloading = false;
+
 // Initialize the application
 async function init() {
     // Initialize auth system
@@ -40,6 +45,36 @@ function initSwipeGestures() {
     }
 }
 
+// Preload the next image in the background
+async function preloadNextImage() {
+    if (isPreloading) return;
+    isPreloading = true;
+
+    try {
+        const response = await fetch('/api/random-image');
+        const imageData = await response.json();
+
+        if (imageData && imageData.url) {
+            // Preload the actual image file
+            const img = new Image();
+            img.onload = () => {
+                preloadedImage = img;
+                preloadedImageData = imageData;
+                isPreloading = false;
+            };
+            img.onerror = () => {
+                preloadedImage = null;
+                preloadedImageData = null;
+                isPreloading = false;
+            };
+            img.src = imageData.url;
+        }
+    } catch (error) {
+        console.error('Error preloading image:', error);
+        isPreloading = false;
+    }
+}
+
 async function loadNewImage() {
     try {
         // Reset swipe element if needed
@@ -48,8 +83,16 @@ async function loadNewImage() {
             resetSwipeElement(imageEl);
         }
 
-        const response = await fetch('/api/random-image');
-        currentImage = await response.json();
+        // Use preloaded image if available, otherwise fetch new
+        if (preloadedImageData && preloadedImage) {
+            currentImage = preloadedImageData;
+            // Clear preloaded data
+            preloadedImage = null;
+            preloadedImageData = null;
+        } else {
+            const response = await fetch('/api/random-image');
+            currentImage = await response.json();
+        }
 
         // Add to history
         historyIndex++;
@@ -65,6 +108,9 @@ async function loadNewImage() {
         displayImage();
         resetUI();
         updateBackButton();
+
+        // Start preloading the next image immediately
+        preloadNextImage();
     } catch (error) {
         console.error('Error loading image:', error);
     }
@@ -173,17 +219,29 @@ function updateBackButton() {
 
 function displayImage() {
     const img = document.getElementById('current-image');
+    const container = document.querySelector('.image-container');
+
+    // Show loading state
+    img.classList.add('loading');
+    container.classList.add('loading');
 
     img.onerror = null;
 
     img.onerror = function() {
         console.error('Failed to load image:', currentImage.url);
+        img.classList.remove('loading');
+        container.classList.remove('loading');
 
         const resultDiv = document.getElementById('result');
         resultDiv.classList.remove('hidden');
         resultDiv.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Image has transcended physical existence. Loading next specimen...</p>';
 
         setTimeout(loadNewImage, 1500);
+    };
+
+    img.onload = function() {
+        img.classList.remove('loading');
+        container.classList.remove('loading');
     };
 
     img.src = currentImage.url;
