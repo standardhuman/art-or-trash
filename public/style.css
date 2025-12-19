@@ -645,6 +645,77 @@ h1 {
     font-style: italic;
 }
 
+/* Verdict Display */
+.verdict-container {
+    text-align: center;
+    padding: var(--space-xl);
+    margin: var(--space-lg) auto;
+    max-width: 500px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.verdict-percentages {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2xl);
+    margin-bottom: var(--space-lg);
+}
+
+.verdict-stat {
+    text-align: center;
+}
+
+.verdict-stat .percentage {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 400;
+}
+
+.verdict-stat .label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.verdict-stat.art .percentage {
+    color: var(--accent-art);
+}
+
+.verdict-stat.trash .percentage {
+    color: var(--accent-trash);
+}
+
+.verdict-copy {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-light);
+}
+
+/* Tier-specific styling */
+.verdict-container.tier-unanimous .verdict-copy {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.verdict-container.tier-landslide .verdict-copy {
+    font-size: 1.375rem;
+}
+
+.verdict-container.tier-deadlocked .verdict-copy {
+    font-size: 1.125rem;
+    color: var(--text-muted);
+}
+
 /* Auth Modal */
 .modal {
     position: fixed;
