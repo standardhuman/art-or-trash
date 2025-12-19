@@ -645,6 +645,38 @@ h1 {
     font-style: italic;
 }
 
+/* Streak Display */
+.streak-display {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+}
+
+.streak-display.hidden {
+    display: none;
+}
+
+.streak-count {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--accent-art);
+}
+
+.streak-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-left: var(--space-xs);
+}
+
+.streak-display.hot .streak-count {
+    color: #e63946;
+}
+
+.streak-display.hot::after {
+    content: ' \01F525'; /* Fire emoji */
+}
+
 /* Bottom Navigation */
 .bottom-nav {
     position: fixed;
