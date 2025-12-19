@@ -71,23 +71,74 @@ h1 {
     margin-bottom: 40px;
 }
 
+/* Image Display */
 .image-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 500px;
-    margin-bottom: 30px;
+    min-height: 400px;
+    max-height: 60vh;
+    margin-bottom: var(--space-xl);
+    position: relative;
 }
 
 #current-image {
-    max-width: 600px;
-    max-height: 500px;
+    max-width: 100%;
+    max-height: 60vh;
     width: auto;
     height: auto;
     object-fit: contain;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    background: var(--bg-white);
+    border-radius: 4px;
+    box-shadow: var(--shadow-lg);
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+}
+
+#current-image:active {
+    cursor: grabbing;
+}
+
+/* Swipe hint overlay */
+.swipe-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0.9;
+    z-index: 10;
+}
+
+.swipe-hint.hidden {
+    display: none;
+}
+
+.swipe-hint.art {
+    background: var(--accent-art);
+    color: white;
+}
+
+.swipe-hint.trash {
+    background: var(--accent-trash);
+    color: white;
+}
+
+.swipe-hint.confident-art {
+    background: var(--accent-art);
+    color: white;
+    border: 3px solid white;
+}
+
+.swipe-hint.confident-trash {
+    background: var(--accent-trash);
+    color: white;
+    border: 3px solid white;
 }
 
 .button-container {
