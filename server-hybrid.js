@@ -49,10 +49,10 @@ if (isProduction && process.env.SUPABASE_URL) {
       return data;
     },
     
-    insertVote: async (imageId, vote) => {
+    insertVote: async (imageId, vote, confidence = 'normal', userId = null) => {
       const { error } = await supabase
         .from('votes')
-        .insert({ image_id: imageId, vote });
+        .insert({ image_id: imageId, vote, confidence, user_id: userId });
       if (error) throw error;
     },
     
@@ -143,6 +143,8 @@ if (isProduction && process.env.SUPABASE_URL) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       image_id INTEGER,
       vote TEXT NOT NULL,
+      confidence TEXT DEFAULT 'normal',
+      user_id TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (image_id) REFERENCES images (id)
     )`);
@@ -172,10 +174,10 @@ if (isProduction && process.env.SUPABASE_URL) {
       });
     },
     
-    insertVote: (imageId, vote) => {
+    insertVote: (imageId, vote, confidence = 'normal', userId = null) => {
       return new Promise((resolve, reject) => {
-        sqliteDb.run('INSERT INTO votes (image_id, vote) VALUES (?, ?)', 
-          [imageId, vote], (err) => {
+        sqliteDb.run('INSERT INTO votes (image_id, vote, confidence, user_id) VALUES (?, ?, ?, ?)',
+          [imageId, vote, confidence, userId], (err) => {
           if (err) reject(err);
           else resolve();
         });
@@ -271,23 +273,33 @@ app.get('/api/random-image', async (req, res) => {
 
 app.post('/api/vote', async (req, res) => {
   try {
-    const { imageId, vote } = req.body;
-    
+    const { imageId, vote, confidence = 'normal', userId = null } = req.body;
+
     const image = await db.getImage(imageId);
     if (!image) return res.status(404).json({ error: 'Image not found' });
-    
-    const isCorrect = (image.type === 'art' && vote === 'art') || 
+
+    const isCorrect = (image.type === 'art' && vote === 'art') ||
                      (image.type === 'trash' && vote === 'trash');
-    
-    await db.insertVote(imageId, vote);
+
+    await db.insertVote(imageId, vote, confidence, userId);
     await db.updateImageStats(imageId, isCorrect);
-    
+
     // Get voting statistics for this image
     const voteStats = await db.getImageVoteStats(imageId);
-    
-    res.json({ 
-      success: true, 
+
+    // Calculate prediction accuracy if user made confident vote
+    let predictionResult = null;
+    if (confidence === 'confident') {
+      const artPercent = voteStats.total > 0 ? (voteStats.art / voteStats.total) * 100 : 50;
+      const winningPercent = Math.max(artPercent, 100 - artPercent);
+      const isLandslide = winningPercent >= 71;
+      predictionResult = isLandslide ? 'correct' : 'incorrect';
+    }
+
+    res.json({
+      success: true,
       voteStats: voteStats,
+      predictionResult,
       actualType: image.type,
       imageDetails: {
         title: image.title,
