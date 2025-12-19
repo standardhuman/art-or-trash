@@ -1,7 +1,6 @@
 // Auth module - handles Supabase authentication
-// TODO: Load these from a config endpoint in production
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://yahsswggpgreawugloxi.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaHNzd2dncGdyZWF3dWdsb3hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2NDQwOTIsImV4cCI6MjA2ODIyMDA5Mn0.pUSJTRDBk3MlZ2BmHvrM-0AvL0CunUkW8GDsRnG-Ubs';
 
 // Initialize Supabase client
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
