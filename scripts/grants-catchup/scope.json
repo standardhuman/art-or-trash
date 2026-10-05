@@ -1,0 +1,9 @@
+{
+  "project": "yahsswggpgreawugloxi",
+  "migrationVersion": "20261005000000",
+  "outOfScopeRelations": {
+    "relations": [],
+    "reason": ""
+  },
+  "exclusions": []
+}
